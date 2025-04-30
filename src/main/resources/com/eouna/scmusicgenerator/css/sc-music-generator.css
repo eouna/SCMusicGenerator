@@ -1,0 +1,50 @@
+.generateBtn {
+    -fx-opacity: 0.6;
+    -fx-background-radius: 20px;
+    -fx-background-color: #3ec8d6;
+    -fx-text-fill: white;
+    -fx-border-radius: 20px;
+    -fx-cursor: hand;
+    -fx-padding: 8 16;
+    -fx-font-size: 14px;
+    -fx-effect: dropshadow(one-pass-box, rgba(0, 0, 0, 0.2), 4, 0.0, 0, 2);
+    -fx-transition: all 0.3s ease;
+}
+
+.generateBtn:hover {
+    -fx-background-color: #00e5f2; /* 悬浮时颜色 */
+}
+
+.fileSelect {
+    -fx-opacity: 0.6;
+    -fx-background-radius: 20px;
+    -fx-background-color: #3ec8d6;
+    -fx-text-fill: white;
+    -fx-border-radius: 20;
+    -fx-cursor: hand;
+    -fx-padding: 8 16;
+    -fx-font-size: 14px;
+    -fx-effect: dropshadow(one-pass-box, rgba(0, 0, 0, 0.2), 4, 0.0, 0, 2);
+    -fx-transition: all 0.3s ease;
+}
+
+.fileSelect:hover {
+    -fx-background-color: #00e5f2; /* 悬浮时颜色 */
+}
+
+.mp3ToMidiBtn {
+    -fx-opacity: 0.6;
+    -fx-background-radius: 20px;
+    -fx-background-color: #3ec8d6;
+    -fx-text-fill: white;
+    -fx-border-radius: 20;
+    -fx-cursor: hand;
+    -fx-padding: 8 16;
+    -fx-font-size: 14px;
+    -fx-effect: dropshadow(one-pass-box, rgba(0, 0, 0, 0.2), 4, 0.0, 0, 2);
+    -fx-transition: all 0.3s ease;
+}
+
+.mp3ToMidiBtn:hover {
+    -fx-background-color: #00e5f2; /* 悬浮时颜色 */
+}

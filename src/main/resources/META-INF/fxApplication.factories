@@ -1,0 +1,1 @@
+com.eouna.scmusicgenerator.core.context.ApplicationListener=com.eouna.scmusicgenerator.boot.ScMusicDataGenApplicationBoot

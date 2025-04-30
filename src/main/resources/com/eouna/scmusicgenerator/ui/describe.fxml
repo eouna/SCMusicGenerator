@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.text.TextFlow?>
+<StackPane prefHeight="512" prefWidth="512" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="com.eouna.scmusicgenerator.ui.controllers.DescribeController">
+    <AnchorPane prefHeight="512" prefWidth="512" fx:id="blurBackground"/>
+    <ScrollPane prefHeight="512" prefWidth="512" style="-fx-opacity: 0.6">
+        <TextFlow prefHeight="512" prefWidth="512" fx:id="main"
+                  style="-fx-font-size: 16px;-fx-text-fill: #0be0ff;-fx-opacity: 0.5">
+        </TextFlow>
+    </ScrollPane>
+</StackPane>

@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+<AnchorPane prefHeight="120.0" prefWidth="300.0" xmlns="http://javafx.com/javafx/11.0.14-internal"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.eouna.scmusicgenerator.ui.controllers.AboutController">
+    <VBox alignment="CENTER" prefHeight="80.0" prefWidth="300.0">
+        <children>
+            <HBox alignment="CENTER">
+                <children>
+                    <Label text="作者(Author)">
+                        <font>
+                            <Font size="15.0"/>
+                        </font>
+                    </Label>
+                    <Label text="：">
+                        <font>
+                            <Font size="15.0"/>
+                        </font>
+                    </Label>
+                    <Label fx:id="authorName" alignment="CENTER" style="-fx-text-fill: red" text="CCL">
+                        <font>
+                            <Font size="15.0"/>
+                        </font>
+                    </Label>
+                </children>
+            </HBox>
+            <HBox alignment="CENTER">
+                <children>
+                    <Label text="版本(Version)">
+                        <font>
+                            <Font size="15.0"/>
+                        </font>
+                    </Label>
+                    <Label text="：">
+                        <font>
+                            <Font size="15.0"/>
+                        </font>
+                    </Label>
+                    <Label fx:id="versionId" alignment="CENTER" text="V_0.1">
+                        <font>
+                            <Font size="15.0"/>
+                        </font>
+                    </Label>
+                </children>
+            </HBox>
+            <HBox alignment="CENTER">
+                <children>
+                    <Label fx:id="powerName" alignment="CENTER" text="Power By ** Company">
+                        <font>
+                            <Font size="15.0"/>
+                        </font>
+                    </Label>
+                </children>
+            </HBox>
+            <HBox alignment="CENTER">
+                <children>
+                    <Label fx:id="copyRightName" alignment="CENTER" text="Copyright © 2018–2023 ** ">
+                        <font>
+                            <Font size="15.0"/>
+                        </font>
+                    </Label>
+                </children>
+            </HBox>
+            <HBox alignment="CENTER">
+                <children>
+                    <Label text="软件名(Name)">
+                        <font>
+                            <Font size="15.0"/>
+                        </font>
+                    </Label>
+                    <Label text="：">
+                        <font>
+                            <Font size="15.0"/>
+                        </font>
+                    </Label>
+                    <Label alignment="CENTER" style="-fx-text-fill: #854ab2" text="SurvivalCraft音乐转换器">
+                        <font>
+                            <Font size="15.0"/>
+                        </font>
+                    </Label>
+                </children>
+            </HBox>
+        </children>
+    </VBox>
+</AnchorPane>

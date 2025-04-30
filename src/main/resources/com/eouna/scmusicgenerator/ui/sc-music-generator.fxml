@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.TextFlow?>
+<?import org.kordamp.ikonli.javafx.*?>
+<StackPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0"
+           prefWidth="800.0" stylesheets="@../css/sc-music-generator.css" xmlns="http://javafx.com/javafx/17"
+           xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="com.eouna.scmusicgenerator.ui.controllers.ScMusicGeneratorController">
+    <AnchorPane fx:id="background" prefHeight="600.0" prefWidth="800.0"/>
+    <AnchorPane prefHeight="600.0" prefWidth="800.0">
+        <children>
+            <MenuBar prefHeight="25.0" prefWidth="800.0">
+                <menus>
+                    <Menu>
+                        <graphic>
+                            <Label onMouseClicked="#onDescribeClick" prefHeight="20" text="说明(Describe)">
+                                <graphic>
+                                    <FontIcon iconLiteral="fa-wpforms" iconSize="14"/>
+                                </graphic>
+                            </Label>
+                        </graphic>
+                    </Menu>
+                    <Menu>
+                        <graphic>
+                            <Label onMouseClicked="#onChangeBackground" prefHeight="20" text="背景更换(Background Change)">
+                                <graphic>
+                                    <FontIcon iconLiteral="fa-file-image-o" iconSize="14"/>
+                                </graphic>
+                            </Label>
+                        </graphic>
+                    </Menu>
+                    <Menu>
+                        <graphic>
+                            <Label onMouseClicked="#onDonateClick" prefHeight="20" text="donate">
+                                <graphic>
+                                    <FontIcon iconLiteral="fa-money" iconSize="14"/>
+                                </graphic>
+                            </Label>
+                        </graphic>
+                    </Menu>
+                    <Menu>
+                        <graphic>
+                            <Label onMouseClicked="#onAboutClick" prefHeight="20" text="关于(About)">
+                                <graphic>
+                                    <FontIcon iconLiteral="fa-question-circle-o" iconSize="14"/>
+                                </graphic>
+                            </Label>
+                        </graphic>
+                    </Menu>
+                </menus>
+            </MenuBar>
+            <ScrollPane prefHeight="295.0" prefWidth="800.0"
+                        style="-fx-border-width: 2px; -fx-border-color: #ccc;-fx-opacity: 0.7"
+                        AnchorPane.topAnchor="25.0">
+                <FlowPane fx:id="soundDataPanel" layoutY="24.0" prefHeight="295.0" prefWidth="780.0">
+                    <VBox alignment="CENTER" prefHeight="290.0" prefWidth="780.0">
+                        <Label alignment="CENTER" disable="true" prefHeight="23.0" prefWidth="210.0"
+                               style="-fx-text-fill: rgba(0,0,0,0.91)" text="点击生成音乐数据按钮以展示数据面板"/>
+                        <Label alignment="CENTER" disable="true" prefHeight="23.0" prefWidth="270.0"
+                               style="-fx-text-fill: rgba(0,0,0,0.91)"
+                               text="Click Music Gen Button To Show Data Panel"/>
+                    </VBox>
+                </FlowPane>
+            </ScrollPane>
+            <ScrollPane fx:id="logShowScrollPane" layoutY="320.0" prefHeight="279.0" prefWidth="290.0"
+                        style="-fx-background-color: white;-fx-border-color: white;-fx-border-width: 0; -fx-padding: 1; -fx-selection-bar: white;-fx-selection-bar-non-focused: white;-fx-selection-bar-focused: white;-fx-opacity: 0.6">
+                <TextFlow fx:id="logShowArea" minHeight="279.0" prefWidth="270.0" style="-fx-font-size: 14;"/>
+            </ScrollPane>
+            <HBox alignment="CENTER" layoutX="295.0" layoutY="319.0" prefHeight="280.0" prefWidth="505.0">
+                <children>
+                    <VBox alignment="CENTER" prefHeight="280.0" prefWidth="170.0">
+                        <children>
+                            <Button contentDisplay="RIGHT" mnemonicParsing="false" onMouseClicked="#onFileSelectClick"
+                                    prefHeight="76.0" prefWidth="120.0" styleClass="fileSelect" text="选择文件">
+                                <graphic>
+                                    <FontIcon iconLiteral="fa-file" iconSize="14"/>
+                                </graphic>
+                            </Button>
+                        </children>
+                    </VBox>
+                    <VBox prefHeight="280.0" prefWidth="170.0">
+                        <children>
+                            <HBox alignment="CENTER" prefHeight="126.0" prefWidth="168.0">
+                                <children>
+                                    <Button fx:id="preLoadBtn" alignment="CENTER" contentDisplay="CENTER" disable="true"
+                                            mnemonicParsing="false" onMouseClicked="#onPreBtnClick" text="&lt;&lt;">
+                                        <HBox.margin>
+                                            <Insets right="10.0"/>
+                                        </HBox.margin>
+                                    </Button>
+                                    <TextField fx:id="paginate" alignment="CENTER" disable="true" prefHeight="23.0"
+                                               prefWidth="37.0" text="0"/>
+                                    <Button fx:id="nexLoadBtn" alignment="CENTER" contentDisplay="CENTER" disable="true"
+                                            mnemonicParsing="false" onMouseClicked="#onNextBtnClick" text="&gt;&gt;">
+                                        <HBox.margin>
+                                            <Insets left="10.0"/>
+                                        </HBox.margin>
+                                    </Button>
+                                </children>
+                            </HBox>
+                            <HBox fx:id="fileChooserContainer" alignment="CENTER" prefHeight="33.0" prefWidth="168.0"
+                                  visible="false">
+                                <children>
+                                    <VBox prefHeight="200.0" prefWidth="100.0">
+                                        <children>
+                                            <Label text="当前选择的文件："/>
+                                            <Label fx:id="fileChooserLabel" text="选择的文件"/>
+                                        </children>
+                                    </VBox>
+                                </children>
+                            </HBox>
+                            <VBox alignment="CENTER" prefHeight="117.0" prefWidth="168.0">
+                                <children>
+                                    <Button fx:id="mp3ToMidiBtn" mnemonicParsing="false"
+                                            onMouseClicked="#onMp3ToMidiClick" prefHeight="52.0" prefWidth="120.0"
+                                            text="MP3转MIDI" visible="false" styleClass="mp3ToMidiBtn"/>
+                                </children>
+                            </VBox>
+                        </children>
+                    </VBox>
+                    <VBox alignment="CENTER" prefHeight="280.0" prefWidth="170.0">
+                        <Button fx:id="generateBtn" contentDisplay="RIGHT" disable="true" mnemonicParsing="false"
+                                onMouseClicked="#onMusicDataGenBtnClick" prefHeight="76.0" prefWidth="120.0"
+                                styleClass="generateBtn" text="生成(Gen)">
+                            <graphic>
+                                <FontIcon iconLiteral="fa-fighter-jet" iconSize="14"/>
+                            </graphic>
+                        </Button>
+                    </VBox>
+                </children>
+            </HBox>
+        </children>
+    </AnchorPane>
+</StackPane>
