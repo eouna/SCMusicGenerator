@@ -8,11 +8,9 @@ import com.eouna.scmusicgenerator.core.window.WindowManager;
 import com.eouna.scmusicgenerator.generator.midi.MidiFileDecoder;
 import com.eouna.scmusicgenerator.generator.midi.ScSoundDataPanelRender;
 import com.eouna.scmusicgenerator.generator.mp3.Mp3ToMidiDecoder;
-import com.eouna.scmusicgenerator.utils.FileUtils;
-import com.eouna.scmusicgenerator.utils.MainWindowTextAreaLogger;
-import com.eouna.scmusicgenerator.utils.UiUtils;
+import com.eouna.scmusicgenerator.utils.*;
+
 import java.io.*;
-import java.net.MalformedURLException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javafx.application.Platform;
@@ -267,6 +265,11 @@ public class ScMusicGeneratorController extends BaseWindowController {
 
   @FXML
   private void onMusicDataGenBtnClick() {
+    double explosionX = stage.getX() + stage.getWidth() / 2;
+    double explosionY = stage.getY() + stage.getHeight() / 2;
+    EffectUtils.shakeWindow(
+        stage, new EffectUtils.ShakeMeta(explosionX, explosionY, 25, 30, 50000));
+    MediaUtils.musicPlay("sound/Explosion.wav");
     try {
       midiFileDecoder = new MidiFileDecoder();
       // 解析

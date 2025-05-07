@@ -2,20 +2,16 @@
 
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.*?>
-<AnchorPane prefHeight="400.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="com.eouna.scmusicgenerator.ui.controllers.DonateController">
+<StackPane prefHeight="400.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="com.eouna.scmusicgenerator.ui.controllers.DonateController" fx:id="root">
    <HBox fx:id="container" prefHeight="400.0" prefWidth="800.0">
       <VBox fx:id="imgShow1" alignment="CENTER" prefHeight="400.0" prefWidth="100.0"/>
       <VBox fx:id="wechatShow" alignment="CENTER" prefHeight="400.0" prefWidth="300.0" style="-fx-border-color: #ccc">
-         <children>
-            <Label text="感谢支持！"/>
-         </children>
+         <Label text="感谢支持！"/>
       </VBox>
       <VBox fx:id="aliShow" alignment="CENTER" prefHeight="400.0" prefWidth="300.0" style="-fx-border-color: #ccc">
-         <children>
-            <Label text="有你的支持,作者会有更有动力哦~"/>
-         </children>
+         <Label text="有你的支持,作者会有更有动力哦~"/>
       </VBox>
       <VBox fx:id="imgShow2" alignment="CENTER" prefHeight="400.0" prefWidth="100.0"/>
    </HBox>
-</AnchorPane>
+</StackPane>
