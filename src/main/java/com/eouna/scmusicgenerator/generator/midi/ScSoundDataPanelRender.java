@@ -232,7 +232,7 @@ public class ScSoundDataPanelRender {
           alertDialog.setGraphic(
               new ImageView(new Image(FileUtils.getFullResourceUrl("icon/look.png"))));
           alertDialog.setContentText(formatDataStr.toString());
-          alertDialog.setTitle("数据查看(DateViewer)");
+          alertDialog.setTitle("数据查看(DataViewer)");
           Stage alertStage = (Stage) alertDialog.getDialogPane().getScene().getWindow();
           alertStage.setOpacity(0.7);
           alertDialog.showAndWait();
