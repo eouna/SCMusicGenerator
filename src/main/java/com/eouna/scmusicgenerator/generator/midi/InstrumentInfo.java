@@ -9,8 +9,13 @@ import java.util.Map;
  * @author CCL
  */
 public class InstrumentInfo {
-  /** 乐器名 */
+  /** 乐器名, 键为 GM 标准 1 基编号(1 = Acoustic Grand Piano). 注意 MIDI Program Change 的数据是 0 基的 */
   private static final Map<Integer, String> MIDI_CODE_TO_INSTRUMENT_NAME = new HashMap<>();
+
+  /** 音名 */
+  private static final String[] NOTE_NAMES = {
+    "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"
+  };
 
   /** 特殊通道的乐器名 列如通道10 */
   private static final Map<Integer, String> SPECIAL_CHANNEL_INSTRUMENT_NAME = new HashMap<>();
@@ -215,7 +220,6 @@ public class InstrumentInfo {
     SPECIAL_CHANNEL_INSTRUMENT_NAME.put(80, "Mute Triangle	闷音三角铁");
     SPECIAL_CHANNEL_INSTRUMENT_NAME.put(81, "Open Triangle	开放三角铁");
     // 控制器事件（Controller events）
-    SPECIAL_CHANNEL_INSTRUMENT_NAME.put(1, "]");
 
     // No.	功能
     FUNCTION_CONTROL_NAME.put(1, "Modulation（颤音）");
@@ -235,8 +239,34 @@ public class InstrumentInfo {
     return FUNCTION_CONTROL_NAME.getOrDefault(code, "未知");
   }
 
+  /**
+   * 按 GM 1 基编号取乐器名
+   *
+   * @param code 1~128
+   * @return 乐器名
+   */
   public static String getInstrumentNameByCode(int code) {
     return MIDI_CODE_TO_INSTRUMENT_NAME.getOrDefault(code, "未知乐器");
+  }
+
+  /**
+   * 按 MIDI Program Change 的数据(0 基, 0 = Acoustic Grand Piano)取乐器名
+   *
+   * @param program 0~127
+   * @return 乐器名
+   */
+  public static String getInstrumentNameByProgram(int program) {
+    return getInstrumentNameByCode(program + 1);
+  }
+
+  /**
+   * MIDI 音符号转音名, 采用 C4 = 60 的记法
+   *
+   * @param midiNote 0~127
+   * @return 例如 60 -> C4, 61 -> C#4
+   */
+  public static String midiNoteName(int midiNote) {
+    return NOTE_NAMES[Math.floorMod(midiNote, 12)] + (Math.floorDiv(midiNote, 12) - 1);
   }
 
   public static String getSpecialChannelInstrumentNameByCode(int code) {

@@ -72,6 +72,7 @@ public class Mp3ToMidiDecoder {
                 + ".mid");
     // 写成配置文件
     String requestUri = "https://api.ai-midi.com/predict";
+    logger.warn("在线转换会把音频文件上传到第三方服务 {} , 请勿上传隐私内容", requestUri);
     try (CloseableHttpClient httpClients = HttpClients.createDefault()) {
       HttpPost httpPost = new HttpPost(requestUri);
       MultipartEntityBuilder multipartEntityBuilder = MultipartEntityBuilder.create();
@@ -243,12 +244,16 @@ public class Mp3ToMidiDecoder {
     return noteEvents;
   }
 
+  /** 相差多少音分以内算同一个音(半音 = 100 音分) */
+  private static final double SAME_PITCH_CENTS = 50.0;
+
   private static boolean isSimilarPitch(float p1, float p2) {
-    if (p1 == -1 || p2 == -1) {
+    if (p1 <= 0 || p2 <= 0) {
       return false;
     }
-    // 2Hz以内算同一个音
-    return Math.abs(p1 - p2) < 2.0f;
+    // 音高是对数关系, 按音分比较: 低音区 2Hz 可能跨半音, 高音区 2Hz 只是轻微的颤音
+    double cents = Math.abs(1200.0 * Math.log(p1 / p2) / Math.log(2));
+    return cents < SAME_PITCH_CENTS;
   }
 
   private static int freqToMidi(float freq) {

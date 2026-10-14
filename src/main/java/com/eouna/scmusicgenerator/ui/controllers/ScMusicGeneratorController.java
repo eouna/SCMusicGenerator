@@ -6,7 +6,11 @@ import com.eouna.scmusicgenerator.core.window.BaseWindowController;
 import com.eouna.scmusicgenerator.core.window.MainWindowIdentifier;
 import com.eouna.scmusicgenerator.core.window.WindowManager;
 import com.eouna.scmusicgenerator.generator.midi.MidiFileDecoder;
+import com.eouna.scmusicgenerator.generator.midi.QuantizeStep;
+import com.eouna.scmusicgenerator.generator.midi.ScMusicData;
+import com.eouna.scmusicgenerator.generator.midi.ScMusicDataBuilder;
 import com.eouna.scmusicgenerator.generator.midi.ScSoundDataPanelRender;
+import com.eouna.scmusicgenerator.generator.midi.ToneMode;
 import com.eouna.scmusicgenerator.generator.mp3.Mp3ToMidiDecoder;
 import com.eouna.scmusicgenerator.utils.*;
 
@@ -55,6 +59,18 @@ public class ScMusicGeneratorController extends BaseWindowController {
   @FXML private Button generateBtn;
 
   // endregion============================== button ==============================
+  // region============================== 生成选项 =============================
+
+  /** 量化步长 */
+  @FXML private ComboBox<QuantizeStep> quantizeStepBox;
+
+  /** 乐器端模式 */
+  @FXML private ComboBox<ToneMode> toneModeBox;
+
+  /** 响度归一化 */
+  @FXML private CheckBox normalizeVelocityBox;
+
+  // endregion============================== 生成选项 ==============================
   // region============================== Pane =============================
   @FXML FlowPane soundDataPanel;
 
@@ -79,8 +95,11 @@ public class ScMusicGeneratorController extends BaseWindowController {
   /** 文件解码之后的数据 */
   private MidiFileDecoder midiFileDecoder;
 
+  /** 生成好的音乐数据 */
+  private ScMusicData musicData;
+
   /** 声音数据区渲染器 */
-  private ScSoundDataPanelRender soundDataPanelRender;
+  private final ScSoundDataPanelRender soundDataPanelRender = new ScSoundDataPanelRender();
 
   /** 当前是否处理完成mp3转midi的任务 */
   private final AtomicBoolean isHandleMp3ToMidiDone = new AtomicBoolean(true);
@@ -99,14 +118,16 @@ public class ScMusicGeneratorController extends BaseWindowController {
   protected void onFileSelectClick() {
     Window mainWindow = getStage().getOwner();
     FileChooser fileChooser = new FileChooser();
-    fileChooser.setTitle("MIDI(.mid)文件或MP3(.mp3)文件选择");
+    fileChooser.setTitle("MIDI(.mid/.midi)文件或MP3(.mp3)文件选择");
     // 设置初始文件位置
     fileChooser.setInitialDirectory(
         new File(
             FileUtils.getRelatedPathOfRoot(DefaultEnvConfigConstant.DEFAULT_MUSIC_SELECT_PATH)));
     fileChooser
         .getExtensionFilters()
-        .add(new FileChooser.ExtensionFilter(".mid文件或.mp3文件", "*.mid", "*.mp3"));
+        .add(
+            new FileChooser.ExtensionFilter(
+                ".mid文件或.mp3文件", "*.mid", "*.midi", "*.MID", "*.MIDI", "*.mp3", "*.MP3"));
     File selectedFile = fileChooser.showOpenDialog(mainWindow);
     if (selectedFile == null) {
       textAreaLogger.info("取消文件选择");
@@ -122,7 +143,7 @@ public class ScMusicGeneratorController extends BaseWindowController {
       musicFileChoose = selectedFile;
 
       fileChooserContainer.setVisible(true);
-      boolean isMp3 = selectedFile.getName().endsWith(".mp3");
+      boolean isMp3 = selectedFile.getName().toLowerCase().endsWith(".mp3");
       mp3ToMidiBtn.setVisible(isMp3);
       preLoadBtn.setDisable(true);
       nexLoadBtn.setDisable(true);
@@ -239,7 +260,7 @@ public class ScMusicGeneratorController extends BaseWindowController {
   protected void onPreBtnClick() {
     int oldPage = Integer.parseInt(paginate.getText());
     int currentPage = oldPage - 1;
-    if (midiFileDecoder != null && oldPage > 1) {
+    if (musicData != null && oldPage > 1) {
       paginate.setText(currentPage + "");
       if (currentPage <= 1) {
         preLoadBtn.setDisable(true);
@@ -253,9 +274,9 @@ public class ScMusicGeneratorController extends BaseWindowController {
   protected void onNextBtnClick() {
     int oldPage = Integer.parseInt(paginate.getText());
     int currentPage = oldPage + 1;
-    if (midiFileDecoder != null && oldPage < midiFileDecoder.getShowPanelMaxPage()) {
+    if (musicData != null && oldPage < musicData.getPageCount()) {
       paginate.setText((currentPage) + "");
-      if (currentPage >= midiFileDecoder.getShowPanelMaxPage()) {
+      if (currentPage >= musicData.getPageCount()) {
         nexLoadBtn.setDisable(true);
       }
       preLoadBtn.setDisable(false);
@@ -263,8 +284,27 @@ public class ScMusicGeneratorController extends BaseWindowController {
     }
   }
 
+  /** 读取界面上的生成选项 */
+  private ScMusicDataBuilder.Options collectBuildOptions() {
+    ScMusicDataBuilder.Options options = new ScMusicDataBuilder.Options();
+    QuantizeStep step = quantizeStepBox.getValue();
+    if (step != null) {
+      options.setStep(step);
+    }
+    ToneMode toneMode = toneModeBox.getValue();
+    if (toneMode != null) {
+      options.setToneMode(toneMode);
+    }
+    options.setNormalizeVelocity(normalizeVelocityBox.isSelected());
+    return options;
+  }
+
   @FXML
   private void onMusicDataGenBtnClick() {
+    if (musicFileChoose == null) {
+      textAreaLogger.warn("请先选择MIDI文件");
+      return;
+    }
     double explosionX = stage.getX() + stage.getWidth() / 2;
     double explosionY = stage.getY() + stage.getHeight() / 2;
     EffectUtils.shakeWindow(
@@ -274,14 +314,21 @@ public class ScMusicGeneratorController extends BaseWindowController {
       midiFileDecoder = new MidiFileDecoder();
       // 解析
       midiFileDecoder.decode(textAreaLogger, musicFileChoose);
+      // 按统一时间网格生成存储板数据
+      musicData =
+          new ScMusicDataBuilder().build(textAreaLogger, midiFileDecoder, collectBuildOptions());
       // 渲染第一页的数据格子
-      soundDataPanelRender = new ScSoundDataPanelRender();
-      if (soundDataPanelRender.renderPanel(textAreaLogger, midiFileDecoder)) {
-        nexLoadBtn.setDisable(midiFileDecoder.getShowPanelMaxPage() == 1);
+      if (soundDataPanelRender.setMusicData(musicData)) {
+        nexLoadBtn.setDisable(musicData.getPageCount() <= 1);
         preLoadBtn.setDisable(true);
         paginate.setText("1");
         soundDataPanelRender.renderDataPanel(soundDataPanel, 1);
-        textAreaLogger.info("生成结束，生效的乐器数量: {}", midiFileDecoder.getInstrumentNeededNum());
+        textAreaLogger.success(
+            "生成结束, 乐器 {} 种, 发音器 {} 块, 每块 {} 页; 时钟周期 {} 秒",
+            musicData.getPlates().size(),
+            musicData.getPlateCount(),
+            musicData.getPageCount(),
+            String.format("%.4f", musicData.getCellPeriodSeconds()));
       } else {
         paginate.setText("0");
         preLoadBtn.setDisable(true);
@@ -290,6 +337,7 @@ public class ScMusicGeneratorController extends BaseWindowController {
         textAreaLogger.info("生成失败");
       }
     } catch (Exception exception) {
+      musicData = null;
       textAreaLogger.error("解析MIDI错误", exception);
     }
   }
@@ -301,6 +349,17 @@ public class ScMusicGeneratorController extends BaseWindowController {
     this.textAreaLogger = new MainWindowTextAreaLogger(logShowArea);
     this.logShowScrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
     this.logShowScrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+    // 生成选项
+    this.quantizeStepBox.getItems().setAll(QuantizeStep.presets());
+    this.quantizeStepBox.setValue(QuantizeStep.defaultStep());
+    this.quantizeStepBox.setTooltip(
+        new Tooltip("存储板一个格子代表的时长. 按拍: 随 MIDI 速度换算; 固定毫秒: 与速度无关.\n步长越小节奏越精确, 但占用的存储板越多"));
+    this.toneModeBox.getItems().setAll(ToneMode.values());
+    this.toneModeBox.setValue(ToneMode.CONSTANT);
+    this.toneModeBox.setTooltip(
+        new Tooltip(
+            "发音器只在乐器端 0->非0 时发声.\n恒定: 乐器端数据需与时钟脉冲(F)过 AND 门;\n脉冲: 每个音后补一格 0, 不需要 AND 门, 但每块板只能存 128 步"));
+    this.normalizeVelocityBox.setTooltip(new Tooltip("把乐曲中最响的音放大到 F, 其余按比例缩放"));
     // 从文件中读取背景图片路径
     boolean useHistoryPic = false;
     String backgroundImgPath =
