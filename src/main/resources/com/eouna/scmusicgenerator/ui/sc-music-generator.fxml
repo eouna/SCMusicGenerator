@@ -121,9 +121,29 @@
                             </VBox>
                         </children>
                     </VBox>
-                    <VBox alignment="CENTER" prefHeight="280.0" prefWidth="170.0">
+                    <VBox alignment="CENTER" prefHeight="280.0" prefWidth="170.0" spacing="4.0">
+                        <VBox fx:id="generateOptionBox" alignment="CENTER_LEFT" prefWidth="165.0" spacing="2.0"
+                              styleClass="generateOptionBox">
+                            <padding>
+                                <Insets bottom="6.0" left="4.0" right="4.0" top="4.0"/>
+                            </padding>
+                            <Label styleClass="optionLabel" text="量化步长(每格时长 Step)"/>
+                            <ComboBox fx:id="quantizeStepBox" prefWidth="160.0" styleClass="optionBox"/>
+                            <Label styleClass="optionLabel" text="乐器端模式(Tone Mode)">
+                                <VBox.margin>
+                                    <Insets top="4.0"/>
+                                </VBox.margin>
+                            </Label>
+                            <ComboBox fx:id="toneModeBox" prefWidth="160.0" styleClass="optionBox"/>
+                            <CheckBox fx:id="normalizeVelocityBox" mnemonicParsing="false" selected="true"
+                                      styleClass="optionLabel" text="响度归一化(最响音=F)">
+                                <VBox.margin>
+                                    <Insets top="6.0"/>
+                                </VBox.margin>
+                            </CheckBox>
+                        </VBox>
                         <Button fx:id="generateBtn" contentDisplay="RIGHT" disable="true" mnemonicParsing="false"
-                                onMouseClicked="#onMusicDataGenBtnClick" prefHeight="76.0" prefWidth="120.0"
+                                onMouseClicked="#onMusicDataGenBtnClick" prefHeight="60.0" prefWidth="120.0"
                                 styleClass="generateBtn" text="生成(Gen)">
                             <graphic>
                                 <FontIcon iconLiteral="fa-fighter-jet" iconSize="14"/>

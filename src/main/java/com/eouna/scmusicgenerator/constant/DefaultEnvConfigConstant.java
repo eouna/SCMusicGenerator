@@ -8,7 +8,7 @@ package com.eouna.scmusicgenerator.constant;
 public interface DefaultEnvConfigConstant {
   // region============================== 软件信息 =============================
   /** 工具默认版本号 */
-  String TOOL_DEFAULT_VERSION = "v1.0.2";
+  String TOOL_DEFAULT_VERSION = "v1.1.0";
 
   /** 作者名 */
   String AUTHOR = "CCL";
