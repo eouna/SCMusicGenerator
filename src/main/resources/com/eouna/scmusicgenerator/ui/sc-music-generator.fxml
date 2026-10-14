@@ -143,21 +143,12 @@
                             </CheckBox>
                         </VBox>
                         <Button fx:id="generateBtn" contentDisplay="RIGHT" disable="true" mnemonicParsing="false"
-                                onMouseClicked="#onMusicDataGenBtnClick" prefHeight="52.0" prefWidth="120.0"
+                                onMouseClicked="#onMusicDataGenBtnClick" prefHeight="60.0" prefWidth="120.0"
                                 styleClass="generateBtn" text="生成(Gen)">
                             <graphic>
                                 <FontIcon iconLiteral="fa-fighter-jet" iconSize="14"/>
                             </graphic>
                         </Button>
-                        <Button fx:id="previewBtn" contentDisplay="RIGHT" disable="true" mnemonicParsing="false"
-                                onMouseClicked="#onPreviewBtnClick" prefHeight="34.0" prefWidth="120.0"
-                                styleClass="previewBtn" text="预播放(Preview)">
-                            <graphic>
-                                <FontIcon fx:id="previewIcon" iconLiteral="fa-play" iconSize="14"/>
-                            </graphic>
-                        </Button>
-                        <Label fx:id="previewProgressLabel" alignment="CENTER" prefWidth="165.0"
-                               styleClass="optionLabel" text="" visible="false"/>
                     </VBox>
                 </children>
             </HBox>

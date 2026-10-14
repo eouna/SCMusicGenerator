@@ -9,7 +9,6 @@ import com.eouna.scmusicgenerator.generator.midi.MidiFileDecoder;
 import com.eouna.scmusicgenerator.generator.midi.QuantizeStep;
 import com.eouna.scmusicgenerator.generator.midi.ScMusicData;
 import com.eouna.scmusicgenerator.generator.midi.ScMusicDataBuilder;
-import com.eouna.scmusicgenerator.generator.midi.ScMusicPreviewPlayer;
 import com.eouna.scmusicgenerator.generator.midi.ScSoundDataPanelRender;
 import com.eouna.scmusicgenerator.generator.midi.ToneMode;
 import com.eouna.scmusicgenerator.generator.mp3.Mp3ToMidiDecoder;
@@ -18,9 +17,6 @@ import com.eouna.scmusicgenerator.utils.*;
 import java.io.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
-import javafx.animation.Animation;
-import javafx.animation.KeyFrame;
-import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -31,11 +27,9 @@ import javafx.scene.text.TextFlow;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.stage.Window;
-import javafx.util.Duration;
-import org.kordamp.ikonli.javafx.FontIcon;
 
 /**
- * 音乐数据生成展示窗口
+ * excel生成展示窗口
  *
  * @author CCL
  */
@@ -63,15 +57,6 @@ public class ScMusicGeneratorController extends BaseWindowController {
 
   /** 生成按钮 */
   @FXML private Button generateBtn;
-
-  /** 预播放按钮 */
-  @FXML private Button previewBtn;
-
-  /** 预播放按钮图标 */
-  @FXML private FontIcon previewIcon;
-
-  /** 预播放进度 */
-  @FXML private Label previewProgressLabel;
 
   // endregion============================== button ==============================
   // region============================== 生成选项 =============================
@@ -115,15 +100,6 @@ public class ScMusicGeneratorController extends BaseWindowController {
 
   /** 声音数据区渲染器 */
   private final ScSoundDataPanelRender soundDataPanelRender = new ScSoundDataPanelRender();
-
-  /** 预播放器: 模拟发音器电路发声 */
-  private final ScMusicPreviewPlayer previewPlayer = new ScMusicPreviewPlayer();
-
-  /** 预播放进度刷新定时器 */
-  private Timeline previewProgressTimeline;
-
-  /** 预播放是否正在初始化 */
-  private final AtomicBoolean previewStarting = new AtomicBoolean(false);
 
   /** 当前是否处理完成mp3转midi的任务 */
   private final AtomicBoolean isHandleMp3ToMidiDone = new AtomicBoolean(true);
@@ -282,43 +258,30 @@ public class ScMusicGeneratorController extends BaseWindowController {
 
   @FXML
   protected void onPreBtnClick() {
-    int oldPage = getShownPage();
+    int oldPage = Integer.parseInt(paginate.getText());
+    int currentPage = oldPage - 1;
     if (musicData != null && oldPage > 1) {
-      showPage(oldPage - 1);
+      paginate.setText(currentPage + "");
+      if (currentPage <= 1) {
+        preLoadBtn.setDisable(true);
+      }
+      nexLoadBtn.setDisable(false);
+      soundDataPanelRender.renderDataPanel(soundDataPanel, currentPage);
     }
   }
 
   @FXML
   protected void onNextBtnClick() {
-    int oldPage = getShownPage();
+    int oldPage = Integer.parseInt(paginate.getText());
+    int currentPage = oldPage + 1;
     if (musicData != null && oldPage < musicData.getPageCount()) {
-      showPage(oldPage + 1);
+      paginate.setText((currentPage) + "");
+      if (currentPage >= musicData.getPageCount()) {
+        nexLoadBtn.setDisable(true);
+      }
+      preLoadBtn.setDisable(false);
+      soundDataPanelRender.renderDataPanel(soundDataPanel, currentPage);
     }
-  }
-
-  /** 当前展示的页码(从 1 开始), 没有数据时为 0 */
-  private int getShownPage() {
-    try {
-      return Integer.parseInt(paginate.getText().trim());
-    } catch (NumberFormatException e) {
-      return 0;
-    }
-  }
-
-  /**
-   * 展示指定页并刷新翻页按钮状态
-   *
-   * @param page 页码, 从 1 开始
-   */
-  private void showPage(int page) {
-    if (musicData == null || musicData.isEmpty()) {
-      return;
-    }
-    int target = Math.max(1, Math.min(musicData.getPageCount(), page));
-    paginate.setText(String.valueOf(target));
-    preLoadBtn.setDisable(target <= 1);
-    nexLoadBtn.setDisable(target >= musicData.getPageCount());
-    soundDataPanelRender.renderDataPanel(soundDataPanel, target);
   }
 
   /** 读取界面上的生成选项 */
@@ -342,14 +305,6 @@ public class ScMusicGeneratorController extends BaseWindowController {
       textAreaLogger.warn("请先选择MIDI文件");
       return;
     }
-    if (previewStarting.get()) {
-      textAreaLogger.warn("预播放正在初始化, 请稍候");
-      return;
-    }
-    // 重新生成前停止预播放
-    if (previewPlayer.isPlaying()) {
-      stopPreview(true);
-    }
     double explosionX = stage.getX() + stage.getWidth() / 2;
     double explosionY = stage.getY() + stage.getHeight() / 2;
     EffectUtils.shakeWindow(
@@ -364,156 +319,30 @@ public class ScMusicGeneratorController extends BaseWindowController {
           new ScMusicDataBuilder().build(textAreaLogger, midiFileDecoder, collectBuildOptions());
       // 渲染第一页的数据格子
       if (soundDataPanelRender.setMusicData(musicData)) {
-        showPage(1);
-        previewBtn.setDisable(false);
+        nexLoadBtn.setDisable(musicData.getPageCount() <= 1);
+        preLoadBtn.setDisable(true);
+        paginate.setText("1");
+        soundDataPanelRender.renderDataPanel(soundDataPanel, 1);
         textAreaLogger.success(
             "生成结束, 乐器 {} 种, 发音器 {} 块, 每块 {} 页; 时钟周期 {} 秒",
             musicData.getPlates().size(),
             musicData.getPlateCount(),
             musicData.getPageCount(),
             String.format("%.4f", musicData.getCellPeriodSeconds()));
-        textAreaLogger.info("点击 预播放(Preview) 可以模拟发音器电路试听");
       } else {
         paginate.setText("0");
         preLoadBtn.setDisable(true);
         nexLoadBtn.setDisable(true);
-        previewBtn.setDisable(true);
         soundDataPanelRender.renderEmptyPanelWithWords(soundDataPanel, "点击生成音乐数据以展示数据面板");
         textAreaLogger.info("生成失败");
       }
     } catch (Exception exception) {
       musicData = null;
-      previewBtn.setDisable(true);
       textAreaLogger.error("解析MIDI错误", exception);
     }
   }
 
   // endregion============================== 点击事件 ==============================
-  // region============================== 预播放 =============================
-
-  /** 预播放 / 停止 */
-  @FXML
-  private void onPreviewBtnClick() {
-    if (previewStarting.get()) {
-      return;
-    }
-    if (previewPlayer.isPlaying()) {
-      stopPreview(true);
-      return;
-    }
-    if (musicData == null || musicData.isEmpty()) {
-      textAreaLogger.warn("请先生成音乐数据");
-      return;
-    }
-    ScMusicData dataToPlay = musicData;
-    previewStarting.set(true);
-    setPreviewButtonPlaying(true);
-    previewBtn.setDisable(true);
-    previewProgressLabel.setText("正在初始化合成器...");
-    previewProgressLabel.setVisible(true);
-    // 第一次需要初始化软件合成器, 放到后台线程避免界面卡顿
-    CompletableFuture.runAsync(
-        () -> {
-          try {
-            previewPlayer.play(
-                textAreaLogger,
-                dataToPlay,
-                () ->
-                    Platform.runLater(
-                        () -> {
-                          textAreaLogger.info("预播放结束");
-                          stopPreview(false);
-                        }));
-            Platform.runLater(
-                () -> {
-                  previewBtn.setDisable(false);
-                  startPreviewProgressTimer();
-                });
-          } catch (Exception e) {
-            Platform.runLater(
-                () -> {
-                  textAreaLogger.error("预播放失败, 没有可用的 MIDI 合成器或音频设备: " + e.getMessage(), e);
-                  stopPreview(false);
-                });
-          } finally {
-            previewStarting.set(false);
-          }
-        });
-  }
-
-  /**
-   * 停止预播放并恢复界面
-   *
-   * @param stopPlayer 是否需要停止播放器(自然结束时不需要)
-   */
-  private void stopPreview(boolean stopPlayer) {
-    stopPreviewProgressTimer();
-    if (stopPlayer) {
-      previewPlayer.stop();
-      textAreaLogger.info("预播放已停止");
-    }
-    setPreviewButtonPlaying(false);
-    previewProgressLabel.setVisible(false);
-    previewBtn.setDisable(musicData == null || musicData.isEmpty());
-  }
-
-  private void setPreviewButtonPlaying(boolean playing) {
-    previewBtn.setText(playing ? "停止(Stop)" : "预播放(Preview)");
-    if (previewIcon != null) {
-      previewIcon.setIconLiteral(playing ? "fa-stop" : "fa-play");
-    }
-    previewBtn.getStyleClass().remove("playing");
-    if (playing) {
-      previewBtn.getStyleClass().add("playing");
-    }
-  }
-
-  private void startPreviewProgressTimer() {
-    stopPreviewProgressTimer();
-    previewProgressTimeline =
-        new Timeline(new KeyFrame(Duration.millis(100), e -> updatePreviewProgress()));
-    previewProgressTimeline.setCycleCount(Animation.INDEFINITE);
-    previewProgressTimeline.play();
-  }
-
-  private void stopPreviewProgressTimer() {
-    if (previewProgressTimeline != null) {
-      previewProgressTimeline.stop();
-      previewProgressTimeline = null;
-    }
-  }
-
-  /** 刷新进度文字, 并把数据面板翻到正在播放的页 */
-  private void updatePreviewProgress() {
-    if (musicData == null || musicData.isEmpty() || !previewPlayer.isPlaying()) {
-      // 播放已经结束(很短的乐曲可能在定时器启动前就播完了)
-      stopPreview(false);
-      return;
-    }
-    int cellsPerStep = musicData.getToneMode().getCellsPerStep();
-    int cellsPerPage = musicData.getStepsPerPage() * cellsPerStep;
-    long cell = previewPlayer.getCurrentCell();
-    int step = (int) Math.min(musicData.getTotalSteps(), cell / cellsPerStep + 1);
-    double totalSeconds = previewPlayer.getTotalCells() * previewPlayer.getCellPeriodSeconds();
-    previewProgressLabel.setText(
-        String.format(
-            "第 %d/%d 步  %s / %s",
-            step,
-            musicData.getTotalSteps(),
-            formatSeconds(Math.min(previewPlayer.getCurrentSeconds(), totalSeconds)),
-            formatSeconds(totalSeconds)));
-    int playingPage = (int) Math.min(musicData.getPageCount(), cell / cellsPerPage + 1);
-    if (playingPage != getShownPage()) {
-      showPage(playingPage);
-    }
-  }
-
-  private static String formatSeconds(double seconds) {
-    int total = (int) Math.round(seconds);
-    return String.format("%d:%02d", total / 60, total % 60);
-  }
-
-  // endregion============================== 预播放 ==============================
 
   @Override
   public void onMounted(Object... args) {
@@ -569,20 +398,6 @@ public class ScMusicGeneratorController extends BaseWindowController {
 
   public MainWindowTextAreaLogger getTextAreaLogger() {
     return textAreaLogger;
-  }
-
-  @Override
-  protected void onClose() {
-    super.onClose();
-    stopPreviewProgressTimer();
-    previewPlayer.close();
-  }
-
-  @Override
-  public void beforeDestroy() {
-    super.beforeDestroy();
-    stopPreviewProgressTimer();
-    previewPlayer.close();
   }
 
   @Override

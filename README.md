@@ -17,7 +17,6 @@ Usage is very simple: load your MIDI file into the tool, pick a quantization ste
 - **Instruments**: GM programs are mapped to Bell/Organ/Ping/String/Trumpet/Voice/Piano/PianoSustain/Bass; channel 10 is always drums and GM percussion notes are mapped to the 10 in-game drum sounds (0 Snare 1 Bass drum 2 Closed hi-hat 3 Pedal hi-hat 4 Open hi-hat 5 Low tom 6 High tom 7 Crash 8 Ride 9 Hand clap).
 - **The tone input is the trigger**: a sound generator only plays when its tone input goes from 0 to non-zero. In the default “constant tone” mode the tone memory bank must be ANDed with the clock pulse (level F); the “pulse” mode inserts a 0 cell after every note so no AND gate is needed, at the cost of 128 steps per bank.
 - **Volume**: `V = round(velocity / 127 × 15)`; with “normalize velocity” checked the loudest note of the song becomes F.
-- **Preview**: after generating, click “Preview” to hear the result. The tool simulates every sound generator cell by cell from the generated memory-bank data (clock period, tone rising-edge trigger, 0.08 s minimum retrigger interval, pitch/volume formulas); all voices play together in rhythm and the data panel follows the page being played. The preview uses the built-in MIDI synthesizer (not the game samples), so use it to check rhythm, harmony and range.
 
 # Tool interface
 
